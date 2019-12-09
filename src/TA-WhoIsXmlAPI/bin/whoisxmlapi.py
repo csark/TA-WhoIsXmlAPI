@@ -10,7 +10,6 @@ from splunklib.searchcommands import validators
 
 import urllib, urllib2
 import json
-#import itertools
 
 import wxa
 
@@ -35,30 +34,20 @@ class whoisxmlapiCommand(StreamingCommand):
 
         api_key = retrievedCredential.content.get('clear_password')
 
-        # build a unique list of domains
+        result_cache = {}
 
-        domains = {}
-        
         record_list = list(records)
         for r in record_list:
-            domains[r['domain']] = 1
-
-        results = wxa.get_whois_info(api_key, domains.keys())
-
-        # do query using the wxa module (which will handle paging, waiting, looping)
-        # iterate through each record, adding the required fields
-
-        # FAKE DATA
-        #results = {'google.com':'Alphabet', 'yahoo.com': 'Someone'}
-
-        for r in record_list:
-            domain = r['domain']
-            if domain in results:
-                #r["owner"] = str(results[domain])
-                for k in results[domain]:
-                    r[k] = results[domain][k]
+            if r['domain'] in result_cache:
+                existing_record = result_cache[r['domain']]
+                r.update(existing_record)
             else:
-                r['owner'] = "Unknown"
+                self.logger.info('Querying: %s', r['domain'])
+                result = wxa.submit_query_single(api_key, r['domain'])
+                r.update(result)
+                result_cache[r['domain']] = result
             yield r
+
+        return
 
 dispatch(whoisxmlapiCommand, sys.argv, sys.stdin, sys.stdout, __name__)
