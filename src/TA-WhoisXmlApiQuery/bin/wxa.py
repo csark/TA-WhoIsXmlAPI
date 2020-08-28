@@ -3,7 +3,7 @@ import sys
 import time
 import datetime
 import requests
-from urllib2 import urlopen
+# from urllib2 import urlopen
 import json
 import logging
 import time
@@ -22,6 +22,11 @@ def submit_query_single(api_key, domain):
     response = requests.get(url)
     rec = json.loads(response.content)
 
+    print("\n\n")
+    print(json.dumps(rec, indent=4))
+    print("\n\n")
+
+
     new_rec = {}
     try:
         new_rec['domainName'] = domain
@@ -39,11 +44,21 @@ def submit_query_single(api_key, domain):
         new_rec['organization'] = rec.get('WhoisRecord').get('registryData').get('registrant').get('organization')
     except:
         new_rec['organization'] = ''
-    try:
-        new_rec['organization'] = rec.get('WhoisRecord').get('registrant').get('organization')
-    except:
-        if new_rec['organization'] == '':
-            new_rec['organization'] = ''
+    if new_rec['organization'] == '':
+        try:
+            new_rec['organization'] = rec.get('WhoisRecord').get('registrant').get('organization')
+        except:
+            if new_rec['organization'] == '':
+                new_rec['organization'] = ''
+    
+    if new_rec['organization'] == '':
+        try:
+            new_rec['organization'] = rec.get('WhoisRecord').get('subRecords')[0].get('registrant').get('organization')
+        except:
+            if new_rec['organization'] == '':
+                new_rec['organization'] = ''
+
+
     try:
         new_rec['registrantName'] = rec.get('WhoisRecord').get('registryData').get('registrant').get('name')
     except:
