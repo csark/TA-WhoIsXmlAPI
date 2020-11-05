@@ -22,9 +22,9 @@ def submit_query_single(api_key, domain):
     response = requests.get(url)
     rec = json.loads(response.content)
 
-    print("\n\n")
-    print(json.dumps(rec, indent=4))
-    print("\n\n")
+    # print("\n\n")
+    # print(json.dumps(rec, indent=4))
+    # print("\n\n")
 
 
     new_rec = {}

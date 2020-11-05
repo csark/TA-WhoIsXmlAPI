@@ -25,7 +25,7 @@ class whoisxmlapiCommand(StreamingCommand):
         try:
             retrievedCredential = [k for k in storage_passwords if k.content.get('username')=='whoisxmlapi_api_key'][0]
 
-        except Exception, e:
+        except Exception as e:
             error = "error retrieving API key - is it defined?: %s " % ( e )
             for record in records:
                 record["error"] = error
@@ -36,7 +36,9 @@ class whoisxmlapiCommand(StreamingCommand):
 
         result_cache = {}
 
-        #record_list = list(records)
+        record_list = list(records)
+        with open('/tmp/record.txt','a') as w:
+                w.write(str(record_list))
         for r in records:
             if r['domain'] in result_cache:
                 existing_record = result_cache[r['domain']]
